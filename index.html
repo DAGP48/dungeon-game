@@ -3,68 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dungeon - Scegli il tuo eroe!</title>
+<title>Dungeon 4.0 - Loot e Rarità!</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{background:#0a0a12;color:white;font-family:Arial,sans-serif;overflow:hidden;touch-action:none;user-select:none}
-  #game{width:100vw;height:100vh;position:relative;background:#1a3d1a;overflow:hidden;background-image:radial-gradient(circle at 20% 30%, #2a5a2a 0%, #1a3d1a 50%, #143014 100%)}
-  #ui{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:10;pointer-events:none;font-weight:bold}
-  #ui div{background:rgba(0,0,0,0.65);padding:8px 12px;border-radius:12px}
-  #player{position:absolute;width:42px;height:42px;font-size:34px;display:flex;align-items:center;justify-content:center;z-index:6;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5))}
-  .enemy{position:absolute;width:36px;height:36px;font-size:30px;display:flex;align-items:center;justify-content:center;z-index:5;filter:drop-shadow(0 0 6px red)}
-  .enemy.hit{filter:brightness(3) drop-shadow(0 0 12px white)}
-  .boss{width:70px!important;height:70px!important;font-size:58px!important}
-  .bullet{position:absolute;width:14px;height:14px;border-radius:50%;z-index:4;box-shadow:0 0 12px #ffe600}
-  .decor{position:absolute;font-size:32px;z-index:1;opacity:0.95;pointer-events:none}
-  #joystickBase{position:absolute;bottom:30px;left:30px;width:120px;height:120px;background:rgba(255,255,255,0.15);border-radius:50%;z-index:20;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.3)}
-  #joystick{width:55px;height:55px;background:rgba(255,255,255,0.6);border-radius:50%}
-  #selectScreen{position:absolute;inset:0;background:rgba(5,20,5,0.96);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-  #selectScreen h1{font-size:26px;margin-bottom:5px;text-align:center}
-  #selectScreen p{color:#aaa;margin-bottom:18px;text-align:center;font-size:14px}
-  .chars{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px}
-  .char{background:#222b3a;border:2px solid #333;padding:14px;border-radius:16px;text-align:center;cursor:pointer}
-  .char:active{border-color:#35a7ff;transform:scale(0.97)}
-  .char .emoji{font-size:48px;display:block;margin-bottom:6px}
-  .char h3{font-size:17px;margin-bottom:4px}
-  .char span{font-size:12px;color:#ccc;display:block;line-height:1.5}
+  #game{width:100vw;height:100vh;position:relative;background:radial-gradient(circle at 50% 50%, #2a5a2a, #143014);overflow:hidden}
+  #ui{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;z-index:10;pointer-events:none;font-weight:bold;font-size:13px;flex-wrap:wrap;gap:4px}
+  #ui div{background:rgba(0,0,0,0.65);padding:6px 9px;border-radius:10px}
+  #player{position:absolute;width:42px;height:42px;font-size:34px;display:flex;align-items:center;justify-content:center;z-index:6}
+  .enemy{position:absolute;width:36px;height:36px;font-size:30px;display:flex;align-items:center;justify-content:center;z-index:5}
+  .enemy.hit{filter:brightness(3)}
+  .boss{width:68px!important;height:68px!important;font-size:56px!important}
+  .bullet{position:absolute;width:13px;height:13px;border-radius:50%;z-index:4}
+  .bossBullet{position:absolute;width:18px;height:18px;background:#ff0000;border-radius:50%;z-index:4;display:flex;align-items:center;justify-content:center}
+  .decor{position:absolute;z-index:1;pointer-events:none}
+  #joystickBase{position:absolute;bottom:20px;left:20px;width:110px;height:110px;background:rgba(255,255,255,0.15);border-radius:50%;z-index:20;display:none;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.3)}
+  #joystick{width:50px;height:50px;background:rgba(255,255,255,0.6);border-radius:50%}
+  #shop{position:absolute;bottom:8px;right:8px;z-index:20;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+  #shop button{background:#222b3a;color:white;border:1px solid #555;padding:7px 9px;border-radius:10px;font-size:11px;font-weight:bold}
+  #crateBtn{background:#ff9d00!important}
+  .screen{position:absolute;inset:0;background:rgba(5,20,5,0.97);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;overflow-y:auto;text-align:center}
+  .chars{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
+  .char{background:#222b3a;border:2px solid #333;padding:12px;border-radius:14px;cursor:pointer}
+  .char .emoji{font-size:42px;display:block}
+  .char h3{font-size:15px;margin:4px 0}
+  .char span{font-size:11px;color:#ccc;line-height:1.4;display:block}
   .char b{color:#ffe600}
-  #msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:30;background:rgba(0,0,0,0.88);padding:25px;border-radius:20px;display:none}
-  #msg button{margin-top:15px;padding:12px 25px;font-size:18px;background:#35a7ff;color:white;border:none;border-radius:12px;font-weight:bold}
-  #dmg{position:absolute;color:#ffe600;font-weight:bold;font-size:18px;pointer-events:none;z-index:15;text-shadow:0 0 5px black}
+  #msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:40;background:rgba(0,0,0,0.9);padding:22px;border-radius:18px;display:none;max-width:90%}
+  #msg button{margin-top:12px;padding:11px 22px;font-size:16px;background:#35a7ff;color:white;border:none;border-radius:12px;font-weight:bold}
+  /* CARTA LOOT / SHOP con rarità */
+  #lootCard{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.5);background:#1a1a2a;padding:22px;border-radius:20px;z-index:45;display:none;text-align:center;max-width:88%;width:320px;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);border:4px solid #aaa}
+  #lootCard.show{transform:translate(-50%,-50%) scale(1)}
+  #lootCard .rarityLabel{font-size:13px;font-weight:bold;letter-spacing:2px;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px}
+  #lootCard .lootEmoji{font-size:64px;display:block;margin:8px 0}
+  #lootCard h2{font-size:20px;margin:4px 0}
+  #lootCard p{font-size:13px;color:#ccc;line-height:1.5;margin:8px 0}
+  #lootCard button{margin-top:10px;padding:11px 22px;border:none;border-radius:12px;font-weight:bold;font-size:15px;color:white;cursor:pointer}
+  #toast{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);padding:10px 16px;border-radius:12px;z-index:35;display:none;font-size:13px;text-align:center;border:2px solid #ffcc00}
+  #dmg{position:absolute;font-weight:bold;font-size:16px;pointer-events:none;z-index:15}
+  @keyframes pop{0%{transform:scale(0.5)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .pop{animation:pop 0.4s}
 </style>
 </head>
 <body>
 <div id="game">
-  <div id="ui">
-    <div><span id="heroIcon">🧙</span> ❤️ <span id="hp">100</span></div>
-    <div>LV <span id="lvl">1</span></div>
-    <div>💀 <span id="kills">0</span></div>
-  </div>
+  <div id="ui"><div><span id="heroIcon">🧙</span> ❤️ <span id="hp">100</span></div><div>LV <span id="lvl">1</span></div><div>💰 <span id="coins">0</span></div><div>💀 <span id="kills">0</span></div></div>
   <div id="player"></div>
   <div id="joystickBase"><div id="joystick"></div></div>
+  <div id="shop" style="display:none">
+    <button onclick="buy('dmg')">⚔️ Danno<br>5💰</button>
+    <button onclick="buy('hp')">❤️ Cura<br>5💰</button>
+    <button onclick="buy('speed')">💨 Veloce<br>5💰</button>
+    <button id="crateBtn" onclick="openCrate()">📦 CASSA<br>10💰</button>
+  </div>
+  <div id="toast"></div>
 
-  <div id="selectScreen">
-    <h1>🌳 SCEGLI IL TUO EROE 🌳</h1>
-    <p>Ogni eroe ha poteri diversi. Scegli bene!</p>
+  <div id="deviceScreen" class="screen">
+    <h1>🎮 DUNGEON 4.0</h1><p>Su che dispositivo giochi?</p>
+    <button style="padding:14px 22px;font-size:18px;border:none;border-radius:14px;font-weight:bold;margin:6px;background:#35a7ff;color:white" onclick="chooseDevice('mobile')">📱 TELEFONO</button>
+    <button style="padding:14px 22px;font-size:18px;border:none;border-radius:14px;font-weight:bold;margin:6px;background:#00cc66;color:white" onclick="chooseDevice('pc')">💻 PC</button>
+  </div>
+  <div id="selectScreen" class="screen" style="display:none">
+    <h1>🌳 SCEGLI IL TUO EROE</h1><p>Ogni eroe ha poteri diversi!</p>
     <div class="chars">
-      <div class="char" onclick="startGame('knight')">
-        <span class="emoji">🛡️</span><h3>CAVALIERE</h3>
-        <span>❤️ Vita: <b>180</b> - TANTA<br>⚔️ Danno: <b>1</b> - Debole<br>💨 Velocità: Lento<br>🎯 Raggio: Normale</span>
-      </div>
-      <div class="char" onclick="startGame('mage')">
-        <span class="emoji">🧙</span><h3>MAGO</h3>
-        <span>❤️ Vita: <b>70</b> - Poca<br>⚔️ Danno: <b>5</b> - DISTRUTTIVO<br>💨 Velocità: Normale<br>🎯 Raggio: Lungo</span>
-      </div>
-      <div class="char" onclick="startGame('ninja')">
-        <span class="emoji">🥷</span><h3>NINJA</h3>
-        <span>❤️ Vita: <b>100</b> - Media<br>⚔️ Danno: <b>2</b> - Medio<br>💨 Velocità: <b>VELOCISSIMO</b><br>🔥 Spara ogni 0.2s!</span>
-      </div>
-      <div class="char" onclick="startGame('archer')">
-        <span class="emoji">🏹</span><h3>ARCIERE</h3>
-        <span>❤️ Vita: <b>80</b> - Bassa<br>⚔️ Danno: <b>3</b> - Forte<br>💨 Velocità: Normale<br>🎯 Raggio: <b>ENORME</b></span>
-      </div>
+      <div class="char" onclick="startGame('knight')"><span class="emoji">🛡️</span><h3>CAVALIERE</h3><span>❤️ <b>180</b><br>⚔️ Danno <b>1</b><br>💨 Lento</span></div>
+      <div class="char" onclick="startGame('mage')"><span class="emoji">🧙</span><h3>MAGO</h3><span>❤️ <b>70</b><br>⚔️ Danno <b>5</b><br>🎯 Raggio lungo</span></div>
+      <div class="char" onclick="startGame('ninja')"><span class="emoji">🥷</span><h3>NINJA</h3><span>❤️ <b>100</b><br>⚔️ Danno <b>2</b><br>💨 <b>VELOCISSIMO</b></span></div>
+      <div class="char" onclick="startGame('archer')"><span class="emoji">🏹</span><h3>ARCIERE</h3><span>❤️ <b>80</b><br>⚔️ Danno <b>3</b><br>🎯 Raggio <b>ENORME</b></span></div>
     </div>
-    <p style="margin-top:15px">👹 I nemici ti inseguono. Tu scappa e lascia che il tuo eroe spari da solo!</p>
+  </div>
+
+  <!-- CARTA LOOT CON RARITÀ -->
+  <div id="lootCard">
+    <span id="rarityLabel" class="rarityLabel">COMUNE</span>
+    <span id="lootEmoji" class="lootEmoji">🏹</span>
+    <h2 id="lootName">Arco Comune</h2>
+    <p id="lootDesc">+1 Danno</p>
+    <div id="lootStats" style="font-size:12px;color:#ffe600;font-weight:bold"></div>
+    <button id="lootBtn" onclick="closeLoot()">EQUIPAGGIA ✅</button>
   </div>
 
   <div id="msg"><h2 id="msgTitle">Hai vinto!</h2><p id="msgText"></p><button onclick="location.reload()">RIGIOCA 🔄</button></div>
@@ -74,141 +90,159 @@
 const game=document.getElementById('game');
 const playerEl=document.getElementById('player');
 let px=window.innerWidth/2, py=window.innerHeight/2;
-let hp=100, maxHp=100, lvl=1, kills=0, gameOver=false, started=false;
-let enemies=[], bullets=[];
-let jx=0, jy=0, joyActive=false, joyStartX=0, joyStartY=0;
-let lastShot=0;
-
-// STATS PER PERSONAGGIO
-let stats={ damage:2, speed:4, range:400, fireRate:400, bulletColor:'#ffe600' };
-let heroEmoji='🧙';
-
+let hp=100, lvl=1, kills=0, coins=0, gameOver=false, started=false, isMobile=false;
+let enemies=[], bullets=[], bossBullets=[];
+let jx=0, jy=0, joyActive=false, joyStartX=0, joyStartY=0, lastShot=0, lastBossShot=0, bossDashUntil=0;
+let stats={damage:2,speed:4,range:400,fireRate:400,bullet:'#ffe600'};
+let heroType='mage', heroEmoji='🧙', prevPx=px, prevPy=py;
 const HEROES={
-  knight:{ hp:180, damage:1, speed:3.2, range:350, fireRate:450, emoji:'🛡️', bullet:'#ff9d00' },
-  mage:{ hp:70, damage:5, speed:4, range:500, fireRate:600, emoji:'🧙', bullet:'#a100ff' },
-  ninja:{ hp:100, damage:2, speed:6.2, range:380, fireRate:200, emoji:'🥷', bullet:'#00ff88' },
-  archer:{ hp:80, damage:3, speed:4, range:700, fireRate:500, emoji:'🏹', bullet:'#35a7ff' }
+  knight:{hp:180,damage:1,speed:3.2,range:350,fireRate:450,emoji:'🛡️',bullet:'#ff9d00'},
+  mage:{hp:70,damage:5,speed:4,range:500,fireRate:600,emoji:'🧙',bullet:'#a100ff'},
+  ninja:{hp:100,damage:2,speed:6.2,range:380,fireRate:200,emoji:'🥷',bullet:'#00ff88'},
+  archer:{hp:80,damage:3,speed:4,range:700,fireRate:500,emoji:'🏹',bullet:'#35a7ff'}
 };
-
-// NEMICI CATTIVI - emoji negative
 const ENEMY_EMOJIS=['👹','😈','👺','💀','🧟','👽','😡','🤬','👿','🦹'];
-const BOSS_EMOJI='😈';
 
-// --- DECORAZIONI: alberi, piante, rocce ---
-function createDecor(){
-  const decors=['🌳','🌲','🌿','🌵','🪨','🌸','🍄','🌻','🌾','🪵'];
-  for(let i=0;i<28;i++){
-    let d=document.createElement('div'); d.className='decor';
-    d.textContent=decors[Math.floor(Math.random()*decors.length)];
-    d.style.left=Math.random()*(window.innerWidth-40)+'px';
-    d.style.top=Math.random()*(window.innerHeight-120)+50+'px';
-    d.style.fontSize=(24+Math.random()*28)+'px';
-    game.appendChild(d);
-  }
+// ===== SISTEMA RARITÀ =====
+// Stessa emoji, rarità diversa = effetto diverso!
+const RARITIES=[
+  {id:'common', name:'COMUNE', color:'#9e9e9e', bg:'#333', chance:60, mult:1, desc:'Un oggetto normale. Meglio di niente!'},
+  {id:'rare', name:'RARO', color:'#35a7ff', bg:'#0a2a4a', chance:25, mult:4, desc:'Più forte del comune. Si inizia a ragionare!'},
+  {id:'epic', name:'EPICO', color:'#c44dff', bg:'#2a0a3a', chance:10, mult:10, desc:'Molto potente! I nemici iniziano ad avere paura.'},
+  {id:'legendary', name:'LEGGENDARIO', color:'#ff9d00', bg:'#3a2500', chance:5, mult:30, desc:'RARRISSIMO! Distruggi tutto. Sei OP!'}
+];
+function rollRarity(){
+  let r=Math.random()*100, acc=0;
+  for(let rar of RARITIES){ acc+=rar.chance; if(r<acc) return rar; }
+  return RARITIES[0];
 }
-createDecor();
+// Loot base per eroe - stessa emoji, il moltiplicatore rarità fa il resto
+const BASE_LOOT={
+  knight:{emoji:'🛡️', name:'Scudo', baseDmg:1, baseHp:10, desc:'Scudo del Cavaliere'},
+  mage:{emoji:'🔮', name:'Bacchetta', baseDmg:1, baseHp:5, desc:'Bacchetta del Mago'},
+  ninja:{emoji:'🗡️', name:'Katana', baseDmg:1, baseHp:5, desc:'Katana del Ninja'},
+  archer:{emoji:'🏹', name:'Arco', baseDmg:1, baseHp:5, desc:'Arco dell\'Arciere'}
+};
+function chooseDevice(d){ isMobile=(d==='mobile'); document.getElementById('deviceScreen').style.display='none'; document.getElementById('selectScreen').style.display='flex'; if(isMobile) document.getElementById('joystickBase').style.display='flex'; createDecor(); }
+function createDecor(){ const decors=['🌳','🌲','🌿','🌵','🪨','🌸','🍄','🌻']; let count=isMobile?10:22; for(let i=0;i<count;i++){ let d=document.createElement('div'); d.className='decor'; d.textContent=decors[Math.floor(Math.random()*decors.length)]; d.style.left=Math.random()*(window.innerWidth-40)+'px'; d.style.top=Math.random()*(window.innerHeight-120)+50+'px'; d.style.fontSize=(isMobile?22:30)+'px'; game.appendChild(d); } }
+function startGame(type){ heroType=type; let h=HEROES[type]; hp=h.hp; stats={damage:h.damage,speed:h.speed,range:h.range,fireRate:h.fireRate,bullet:h.bullet}; heroEmoji=h.emoji; playerEl.textContent=heroEmoji; document.getElementById('heroIcon').textContent=heroEmoji; document.getElementById('hp').textContent=hp; document.getElementById('selectScreen').style.display='none'; document.getElementById('shop').style.display='flex'; started=true; spawnEnemies(); loop(); }
 
-function startGame(type){
-  let h=HEROES[type];
-  hp=h.hp; maxHp=h.hp; stats=h; heroEmoji=h.emoji;
-  playerEl.textContent=heroEmoji;
-  document.getElementById('heroIcon').textContent=heroEmoji;
-  document.getElementById('hp').textContent=hp;
-  document.getElementById('selectScreen').style.display='none';
-  started=true;
-  spawnEnemies();
-  loop();
+// ===== DIFFICOLTÀ CHE SALE OGNI LIVELLO =====
+function getDifficulty(){
+  return {
+    enemyHp: 4 + lvl*3, // Liv 1: 7 HP, Liv 5: 19 HP
+    enemySpeed: (isMobile?0.5:0.7) + lvl*0.18, // sempre più veloci
+    enemyDamage: 1 + Math.floor(lvl/3), // da liv 3 fanno 2 danni
+    bossHp: 35 + lvl*10, // Boss sempre più tank
+    bossSmart: lvl>=3 // da liv 3 il boss diventa intelligente
+  };
 }
-
 function spawnEnemies(){
   enemies.forEach(e=>e.el.remove()); enemies=[];
-  let count=3+lvl*2;
-  for(let i=0;i<count;i++){
-    let el=document.createElement('div'); el.className='enemy';
-    let isBoss=(lvl===5);
-    el.textContent = isBoss ? BOSS_EMOJI : ENEMY_EMOJIS[Math.floor(Math.random()*ENEMY_EMOJIS.length)];
-    game.appendChild(el);
-    let enemyHp = isBoss ? 40 : 4+lvl*2;
-    if(isBoss) el.classList.add('boss');
-    enemies.push({el, x:Math.random()*(window.innerWidth-60)+30, y:Math.random()*(window.innerHeight-150)+60, hp:enemyHp, speed:0.7+lvl*0.15+Math.random()*0.5, isBoss});
+  let diff=getDifficulty();
+  if(lvl===5){
+    let el=document.createElement('div'); el.className='enemy boss'; el.textContent='😈'; game.appendChild(el);
+    enemies.push({el,x:window.innerWidth/2,y:80,hp:diff.bossHp,speed:1.1,isBoss:true});
+  } else {
+    let count=isMobile?3+lvl:3+lvl*2;
+    for(let i=0;i<count;i++){ let el=document.createElement('div'); el.className='enemy'; el.textContent=ENEMY_EMOJIS[Math.floor(Math.random()*ENEMY_EMOJIS.length)]; game.appendChild(el); enemies.push({el,x:Math.random()*(window.innerWidth-60)+30,y:Math.random()*(window.innerHeight-150)+60,hp:diff.enemyHp,speed:diff.enemySpeed+Math.random()*0.4,isBoss:false}); }
   }
   document.getElementById('lvl').textContent=lvl;
+  showToast(`⚠️ LIVELLO ${lvl} - Nemici più forti! HP: ${diff.enemyHp} | Vel: ${diff.enemySpeed.toFixed(1)}`);
 }
+function showToast(txt){ let t=document.getElementById('toast'); t.textContent=txt; t.style.display='block'; setTimeout(()=>t.style.display='none',2500); }
+function showLootCard(rarity, loot){
+  let card=document.getElementById('lootCard');
+  card.style.borderColor=rarity.color; card.style.background=rarity.bg;
+  document.getElementById('rarityLabel').textContent=rarity.name; document.getElementById('rarityLabel').style.background=rarity.color; document.getElementById('rarityLabel').style.color=rarity.id==='common'?'black':'white';
+  document.getElementById('lootEmoji').textContent=loot.emoji;
+  document.getElementById('lootName').textContent=loot.name+' '+rarity.name;
+  document.getElementById('lootName').style.color=rarity.color;
+  document.getElementById('lootDesc').textContent=loot.desc+' - '+rarity.desc;
+  document.getElementById('lootStats').textContent=loot.effectText;
+  document.getElementById('lootBtn').style.background=rarity.color;
+  card.style.display='block'; setTimeout(()=>card.classList.add('show'),10);
+  card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+}
+function closeLoot(){ let c=document.getElementById('lootCard'); c.classList.remove('show'); setTimeout(()=>c.style.display='none',200); }
 
-// Joystick
-const joyBase=document.getElementById('joystickBase');
-const joy=document.getElementById('joystick');
+// ===== SHOP CON RARITÀ =====
+function buy(type){
+  if(coins<5){ showToast('❌ Ti servono 5💰!'); return; }
+  coins-=5;
+  let rarity=rollRarity(); // anche lo shop può dare rarità!
+  let effectText='', lootName='';
+  if(type==='dmg'){ let add=1*rarity.mult; stats.damage+=add; effectText=`+${add} DANNO`; lootName='⚔️ Spada'; }
+  if(type==='hp'){ let add=30*rarity.mult; hp+=add; effectText=`+${add} VITA`; lootName='❤️ Pozione'; }
+  if(type==='speed'){ let add=(0.5*rarity.mult).toFixed(1); stats.speed+=parseFloat(add); effectText=`+${add} VELOCITÀ`; lootName='💨 Stivali'; }
+  updateUI();
+  // Mostra carta con rarità
+  let fakeLoot={emoji:type==='dmg'?'⚔️':type==='hp'?'❤️':'💨', name:lootName, desc:'Acquistato dallo Shop', effectText:effectText};
+  showLootCard(rarity, fakeLoot);
+}
+function openCrate(){
+  if(coins<10){ showToast('❌ La cassa costa 10💰!'); return; }
+  coins-=10; updateUI();
+  let rarity=rollRarity();
+  let base=BASE_LOOT[heroType];
+  // STESSA EMOJI, MA RARITÀ = MOLTIPLICATORE
+  // Comune: +1 danno, Raro: +4, Epico: +10, Leggendario: +30
+  let dmgAdd = base.baseDmg * rarity.mult;
+  let hpAdd = base.baseHp * rarity.mult;
+  stats.damage += dmgAdd; hp += hpAdd;
+  if(rarity.id==='legendary') stats.fireRate = Math.max(80, stats.fireRate-100); // leggendario spara anche più veloce
+  updateUI();
+  let loot={emoji:base.emoji, name:base.name, desc:base.desc, effectText:`+${dmgAdd} DANNO • +${hpAdd} VITA` + (rarity.id==='legendary'?' • 🔥 SPARA PIÙ VELOCE!':'')};
+  showLootCard(rarity, loot);
+}
+function updateUI(){ document.getElementById('hp').textContent=hp; document.getElementById('coins').textContent=coins; document.getElementById('kills').textContent=kills; }
+const joyBase=document.getElementById('joystickBase'); const joy=document.getElementById('joystick');
 joyBase.addEventListener('touchstart',e=>{joyActive=true;joyStartX=e.touches[0].clientX;joyStartY=e.touches[0].clientY;});
-document.addEventListener('touchmove',e=>{
-  if(!joyActive) return; e.preventDefault();
-  let dx=e.touches[0].clientX-joyStartX, dy=e.touches[0].clientY-joyStartY;
-  let dist=Math.sqrt(dx*dx+dy*dy); let max=45;
-  if(dist>max){dx=dx/dist*max;dy=dy/dist*max;}
-  jx=dx/max; jy=dy/max; joy.style.transform=`translate(${dx}px,${dy}px)`;
-},{passive:false});
+document.addEventListener('touchmove',e=>{ if(!joyActive) return; e.preventDefault(); let dx=e.touches[0].clientX-joyStartX, dy=e.touches[0].clientY-joyStartY; let dist=Math.sqrt(dx*dx+dy*dy); let max=45; if(dist>max){dx=dx/dist*max;dy=dy/dist*max;} jx=dx/max; jy=dy/max; joy.style.transform=`translate(${dx}px,${dy}px)`; },{passive:false});
 document.addEventListener('touchend',()=>{joyActive=false;jx=0;jy=0;joy.style.transform='translate(0,0)';});
-let keys={};
-document.addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
-document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-
-function showDmg(x,y,txt,color){
-  let d=document.createElement('div'); d.id='dmg'; d.textContent=txt; d.style.left=x+'px'; d.style.top=y+'px'; d.style.color=color;
-  game.appendChild(d); setTimeout(()=>d.remove(),600);
-}
-function shootNearest(){
-  if(enemies.length===0) return;
-  let nearest=null, bestDist=9999;
-  enemies.forEach(en=>{ let d=Math.hypot(en.x-px,en.y-py); if(d<bestDist){bestDist=d;nearest=en;} });
-  if(!nearest || bestDist>stats.range) return;
-  let el=document.createElement('div'); el.className='bullet'; el.style.background=stats.bullet; el.style.boxShadow=`0 0 12px ${stats.bullet}`;
-  game.appendChild(el);
-  let angle=Math.atan2(nearest.y-py,nearest.x-px);
-  bullets.push({el,x:px+21,y:py+21,vx:Math.cos(angle)*7.5,vy:Math.sin(angle)*7.5,life:90});
-}
+let keys={}; document.addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true); document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+function showDmg(x,y,txt,color){ let d=document.createElement('div'); d.id='dmg'; d.textContent=txt; d.style.left=x+'px'; d.style.top=y+'px'; d.style.color=color||'#ffe600'; game.appendChild(d); setTimeout(()=>d.remove(),500); }
+function shootNearest(){ if(enemies.length===0) return; let nearest=null,best=9999; enemies.forEach(en=>{let d=Math.hypot(en.x-px,en.y-py); if(d<best){best=d;nearest=en;}}); if(!nearest||best>stats.range) return; let el=document.createElement('div'); el.className='bullet'; el.style.background=stats.bullet; game.appendChild(el); let a=Math.atan2(nearest.y-py,nearest.x-px); bullets.push({el,x:px+21,y:py+21,vx:Math.cos(a)*7.5,vy:Math.sin(a)*7.5,life:90}); }
 function loop(){
   if(gameOver||!started) return;
-  let mx=jx, my=jy;
-  if(keys['w']||keys['arrowup']) my=-1;
-  if(keys['s']||keys['arrowdown']) my=1;
-  if(keys['a']||keys['arrowleft']) mx=-1;
-  if(keys['d']||keys['arrowright']) mx=1;
-  px+=mx*stats.speed; py+=my*stats.speed;
-  px=Math.max(0,Math.min(window.innerWidth-42,px));
-  py=Math.max(0,Math.min(window.innerHeight-42,py));
+  prevPx=px; prevPy=py;
+  let mx=jx,my=jy; if(keys['w']||keys['arrowup'])my=-1; if(keys['s']||keys['arrowdown'])my=1; if(keys['a']||keys['arrowleft'])mx=-1; if(keys['d']||keys['arrowright'])mx=1;
+  px+=mx*stats.speed; py+=my*stats.speed; px=Math.max(0,Math.min(window.innerWidth-42,px)); py=Math.max(0,Math.min(window.innerHeight-42,py));
   playerEl.style.left=px+'px'; playerEl.style.top=py+'px';
-  let now=Date.now();
-  if(now-lastShot>stats.fireRate){ shootNearest(); lastShot=now; }
-  for(let i=bullets.length-1;i>=0;i--){
-    let b=bullets[i]; b.x+=b.vx; b.y+=b.vy; b.life--;
-    b.el.style.left=b.x+'px'; b.el.style.top=b.y+'px';
-    let hit=false;
-    for(let j=enemies.length-1;j>=0;j--){
-      let en=enemies[j]; let d=Math.hypot(en.x+18-b.x,en.y+18-b.y);
-      let hitDist=en.isBoss?45:30;
-      if(d<hitDist){
-        en.hp-=stats.damage; en.el.classList.add('hit'); setTimeout(()=>en.el.classList.remove('hit'),80);
-        showDmg(en.x,en.y-10,'-'+stats.damage,'#ffe600'); hit=true;
-        if(en.hp<=0){
-          en.el.remove(); enemies.splice(j,1); kills++; document.getElementById('kills').textContent=kills;
-          showDmg(en.x,en.y,'+1 💀','#00ff88');
-          if(enemies.length===0){
-            if(lvl===5){ document.getElementById('msgTitle').textContent='HAI BATTUTO IL BOSS! 🏆'; document.getElementById('msgText').textContent=`Con ${heroEmoji} sei una leggenda!`; document.getElementById('msg').style.display='block'; gameOver=true; return; }
-            lvl++; spawnEnemies();
-          }
-        }
-        break;
-      }
-    }
+  let now=Date.now(); if(now-lastShot>stats.fireRate){ shootNearest(); lastShot=now; }
+  for(let i=bullets.length-1;i>=0;i--){ let b=bullets[i]; b.x+=b.vx; b.y+=b.vy; b.life--; b.el.style.left=b.x+'px'; b.el.style.top=b.y+'px'; let hit=false;
+    for(let j=enemies.length-1;j>=0;j--){ let en=enemies[j]; let d=Math.hypot(en.x+18-b.x,en.y+18-b.y); let hd=en.isBoss?45:30; if(d<hd){ en.hp-=stats.damage; en.el.classList.add('hit'); setTimeout(()=>en.el.classList.remove('hit'),80); showDmg(en.x,en.y-10,'-'+stats.damage); hit=true; if(en.hp<=0){ en.el.remove(); enemies.splice(j,1); kills++; coins++; updateUI(); showDmg(en.x,en.y,'+1 💰','#00ff88'); if(enemies.length===0){ if(lvl===5){ document.getElementById('msgTitle').textContent='HAI BATTUTO IL BOSS! 🏆'; document.getElementById('msgText').textContent=`Con ${heroEmoji} sei una leggenda! Kill: ${kills} | Danno: ${stats.damage}`; document.getElementById('msg').style.display='block'; gameOver=true; return; } lvl++; spawnEnemies(); } } break; } }
     if(hit||b.life<=0||b.x<0||b.x>window.innerWidth||b.y<0||b.y>window.innerHeight){ b.el.remove(); bullets.splice(i,1); }
   }
+  for(let i=bossBullets.length-1;i>=0;i--){ let b=bossBullets[i]; b.x+=b.vx; b.y+=b.vy; b.el.style.left=b.x+'px'; b.el.style.top=b.y+'px'; let d=Math.hypot(px+21-b.x,py+21-b.y); if(d<30){ hp-=5; updateUI(); showDmg(px,py-10,'-5!','#ff0000'); b.el.remove(); bossBullets.splice(i,1); if(hp<=0){ gameOver=true; document.getElementById('msgTitle').textContent='SEI MORTO 💀'; document.getElementById('msgText').textContent=`Livello ${lvl} - Kill: ${kills}`; document.getElementById('msg').style.display='block'; } continue; } if(b.x<0||b.x>window.innerWidth||b.y<0||b.y>window.innerHeight){ b.el.remove(); bossBullets.splice(i,1); } }
+  let diff=getDifficulty();
   enemies.forEach(en=>{
-    let dx=px-en.x, dy=py-en.y, d=Math.hypot(dx,dy)||1;
-    en.x+=dx/d*en.speed; en.y+=dy/d*en.speed;
-    en.el.style.left=en.x+'px'; en.el.style.top=en.y+'px';
-    if(d<38){
-      hp-= en.isBoss?2:1; document.getElementById('hp').textContent=hp;
-      if(hp<=0){ gameOver=true; document.getElementById('msgTitle').textContent='SEI MORTO 💀'; document.getElementById('msgText').textContent=`Livello ${lvl} - Uccisi: ${kills} con ${heroEmoji}`; document.getElementById('msg').style.display='block'; }
+    let targetX=px, targetY=py;
+    // ===== BOSS INTELLIGENTE =====
+    // Liv 1-2: va dritto verso di te (stupido)
+    // Liv 3+: PREVEDE dove stai andando e ti taglia la strada!
+    if(en.isBoss && diff.bossSmart){
+      let vx=px-prevPx, vy=py-prevPy;
+      targetX = px + vx*30; // prevede 30 pixel avanti
+      targetY = py + vy*30;
     }
+    let dx=targetX-en.x, dy=targetY-en.y, d=Math.hypot(dx,dy)||1;
+    let spd=en.speed;
+    if(en.isBoss){
+      if(Date.now()%3000<100) bossDashUntil=Date.now()+600;
+      if(bossDashUntil>Date.now()) spd=3.8;
+      if(Date.now()-lastBossShot>1800){
+        lastBossShot=Date.now();
+        // Liv 5: spara a VENTAGLIO (3 proiettili), prima solo 1
+        let shots = lvl>=4 ? [-0.3,0,0.3] : [0];
+        shots.forEach(off=>{
+          let el=document.createElement('div'); el.className='bossBullet'; el.textContent='🔴'; game.appendChild(el);
+          let a=Math.atan2(py-en.y,px-en.x)+off; bossBullets.push({el,x:en.x+30,y:en.y+30,vx:Math.cos(a)*4,vy:Math.sin(a)*4});
+        });
+      }
+    }
+    en.x+=dx/d*spd; en.y+=dy/d*spd; en.el.style.left=en.x+'px'; en.el.style.top=en.y+'px';
+    if(d<38){ hp-= en.isBoss?1:diff.enemyDamage; updateUI(); if(hp<=0){ gameOver=true; document.getElementById('msgTitle').textContent='SEI MORTO 💀'; document.getElementById('msgText').textContent=`Livello ${lvl} - Kill: ${kills} - Monete: ${coins}`; document.getElementById('msg').style.display='block'; } }
   });
   requestAnimationFrame(loop);
 }
