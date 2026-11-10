@@ -1,104 +1,217 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dungeon - Scegli il tuo eroe!</title>
 <style>
-body{margin:0;background:#111;color:white;text-align:center;font-family:sans-serif;overflow:hidden}
-#game{background:#1a1a2e;border:2px solid white;touch-action:none}
-#joy{width:110px;height:110px;background:#333;border-radius:50%;margin:10px auto;touch-action:none}
-#info{font-size:18px}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:#0a0a12;color:white;font-family:Arial,sans-serif;overflow:hidden;touch-action:none;user-select:none}
+  #game{width:100vw;height:100vh;position:relative;background:#1a3d1a;overflow:hidden;background-image:radial-gradient(circle at 20% 30%, #2a5a2a 0%, #1a3d1a 50%, #143014 100%)}
+  #ui{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:10;pointer-events:none;font-weight:bold}
+  #ui div{background:rgba(0,0,0,0.65);padding:8px 12px;border-radius:12px}
+  #player{position:absolute;width:42px;height:42px;font-size:34px;display:flex;align-items:center;justify-content:center;z-index:6;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5))}
+  .enemy{position:absolute;width:36px;height:36px;font-size:30px;display:flex;align-items:center;justify-content:center;z-index:5;filter:drop-shadow(0 0 6px red)}
+  .enemy.hit{filter:brightness(3) drop-shadow(0 0 12px white)}
+  .boss{width:70px!important;height:70px!important;font-size:58px!important}
+  .bullet{position:absolute;width:14px;height:14px;border-radius:50%;z-index:4;box-shadow:0 0 12px #ffe600}
+  .decor{position:absolute;font-size:32px;z-index:1;opacity:0.95;pointer-events:none}
+  #joystickBase{position:absolute;bottom:30px;left:30px;width:120px;height:120px;background:rgba(255,255,255,0.15);border-radius:50%;z-index:20;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.3)}
+  #joystick{width:55px;height:55px;background:rgba(255,255,255,0.6);border-radius:50%}
+  #selectScreen{position:absolute;inset:0;background:rgba(5,20,5,0.96);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+  #selectScreen h1{font-size:26px;margin-bottom:5px;text-align:center}
+  #selectScreen p{color:#aaa;margin-bottom:18px;text-align:center;font-size:14px}
+  .chars{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px}
+  .char{background:#222b3a;border:2px solid #333;padding:14px;border-radius:16px;text-align:center;cursor:pointer}
+  .char:active{border-color:#35a7ff;transform:scale(0.97)}
+  .char .emoji{font-size:48px;display:block;margin-bottom:6px}
+  .char h3{font-size:17px;margin-bottom:4px}
+  .char span{font-size:12px;color:#ccc;display:block;line-height:1.5}
+  .char b{color:#ffe600}
+  #msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:30;background:rgba(0,0,0,0.88);padding:25px;border-radius:20px;display:none}
+  #msg button{margin-top:15px;padding:12px 25px;font-size:18px;background:#35a7ff;color:white;border:none;border-radius:12px;font-weight:bold}
+  #dmg{position:absolute;color:#ffe600;font-weight:bold;font-size:18px;pointer-events:none;z-index:15;text-shadow:0 0 5px black}
 </style>
 </head>
 <body>
-<h2>⚔️ DUNGEON GAME</h2>
-<div id="info">Livello: <span id="liv">1</span> | Vita: <span id="vita">100</span> | Uccisi: <span id="kill">0</span></div>
-<canvas id="game" width="350" height="420"></canvas>
-<p>Muovi il dito sul cerchio</p>
-<div id="joy"></div>
-<button onclick="location.reload()" style="padding:10px 20px;font-size:16px">🔄 Rigioca</button>
+<div id="game">
+  <div id="ui">
+    <div><span id="heroIcon">🧙</span> ❤️ <span id="hp">100</span></div>
+    <div>LV <span id="lvl">1</span></div>
+    <div>💀 <span id="kills">0</span></div>
+  </div>
+  <div id="player"></div>
+  <div id="joystickBase"><div id="joystick"></div></div>
+
+  <div id="selectScreen">
+    <h1>🌳 SCEGLI IL TUO EROE 🌳</h1>
+    <p>Ogni eroe ha poteri diversi. Scegli bene!</p>
+    <div class="chars">
+      <div class="char" onclick="startGame('knight')">
+        <span class="emoji">🛡️</span><h3>CAVALIERE</h3>
+        <span>❤️ Vita: <b>180</b> - TANTA<br>⚔️ Danno: <b>1</b> - Debole<br>💨 Velocità: Lento<br>🎯 Raggio: Normale</span>
+      </div>
+      <div class="char" onclick="startGame('mage')">
+        <span class="emoji">🧙</span><h3>MAGO</h3>
+        <span>❤️ Vita: <b>70</b> - Poca<br>⚔️ Danno: <b>5</b> - DISTRUTTIVO<br>💨 Velocità: Normale<br>🎯 Raggio: Lungo</span>
+      </div>
+      <div class="char" onclick="startGame('ninja')">
+        <span class="emoji">🥷</span><h3>NINJA</h3>
+        <span>❤️ Vita: <b>100</b> - Media<br>⚔️ Danno: <b>2</b> - Medio<br>💨 Velocità: <b>VELOCISSIMO</b><br>🔥 Spara ogni 0.2s!</span>
+      </div>
+      <div class="char" onclick="startGame('archer')">
+        <span class="emoji">🏹</span><h3>ARCIERE</h3>
+        <span>❤️ Vita: <b>80</b> - Bassa<br>⚔️ Danno: <b>3</b> - Forte<br>💨 Velocità: Normale<br>🎯 Raggio: <b>ENORME</b></span>
+      </div>
+    </div>
+    <p style="margin-top:15px">👹 I nemici ti inseguono. Tu scappa e lascia che il tuo eroe spari da solo!</p>
+  </div>
+
+  <div id="msg"><h2 id="msgTitle">Hai vinto!</h2><p id="msgText"></p><button onclick="location.reload()">RIGIOCA 🔄</button></div>
+</div>
 
 <script>
-let canvas=document.getElementById("game");
-let ctx=canvas.getContext("2d");
-let px=175, py=210, pvita=100;
-let joyX=0, joyY=0, moving=false;
-let livello=1, uccisi=0, uccisiLivello=0;
-let mostri=[];
-let boss=null;
+const game=document.getElementById('game');
+const playerEl=document.getElementById('player');
+let px=window.innerWidth/2, py=window.innerHeight/2;
+let hp=100, maxHp=100, lvl=1, kills=0, gameOver=false, started=false;
+let enemies=[], bullets=[];
+let jx=0, jy=0, joyActive=false, joyStartX=0, joyStartY=0;
+let lastShot=0;
 
-function creaMostro(){
-  let eBoss = (livello % 5 === 0 && mostri.length===0 && !boss);
-  if(eBoss){
-    boss={x:Math.random()*300+25,y:50,vita:100,max:100,vel:0.7,dim:50};
-  } else {
-    mostri.push({x:Math.random()*300+25,y:Math.random()*100+20,vita:30,vel:0.8+livello*0.1,dim:24});
+// STATS PER PERSONAGGIO
+let stats={ damage:2, speed:4, range:400, fireRate:400, bulletColor:'#ffe600' };
+let heroEmoji='🧙';
+
+const HEROES={
+  knight:{ hp:180, damage:1, speed:3.2, range:350, fireRate:450, emoji:'🛡️', bullet:'#ff9d00' },
+  mage:{ hp:70, damage:5, speed:4, range:500, fireRate:600, emoji:'🧙', bullet:'#a100ff' },
+  ninja:{ hp:100, damage:2, speed:6.2, range:380, fireRate:200, emoji:'🥷', bullet:'#00ff88' },
+  archer:{ hp:80, damage:3, speed:4, range:700, fireRate:500, emoji:'🏹', bullet:'#35a7ff' }
+};
+
+// NEMICI CATTIVI - emoji negative
+const ENEMY_EMOJIS=['👹','😈','👺','💀','🧟','👽','😡','🤬','👿','🦹'];
+const BOSS_EMOJI='😈';
+
+// --- DECORAZIONI: alberi, piante, rocce ---
+function createDecor(){
+  const decors=['🌳','🌲','🌿','🌵','🪨','🌸','🍄','🌻','🌾','🪵'];
+  for(let i=0;i<28;i++){
+    let d=document.createElement('div'); d.className='decor';
+    d.textContent=decors[Math.floor(Math.random()*decors.length)];
+    d.style.left=Math.random()*(window.innerWidth-40)+'px';
+    d.style.top=Math.random()*(window.innerHeight-120)+50+'px';
+    d.style.fontSize=(24+Math.random()*28)+'px';
+    game.appendChild(d);
   }
 }
-for(let i=0;i<3;i++) creaMostro();
+createDecor();
 
-let joy=document.getElementById("joy");
-joy.addEventListener("touchstart",e=>{moving=true});
-joy.addEventListener("touchmove",e=>{
-  let t=e.touches[0];
-  let r=joy.getBoundingClientRect();
-  let dx=t.clientX-(r.left+r.width/2);
-  let dy=t.clientY-(r.top+r.height/2);
-  joyX=dx/40; joyY=dy/40;
-});
-joy.addEventListener("touchend",()=>{moving=false;joyX=0;joyY=0});
+function startGame(type){
+  let h=HEROES[type];
+  hp=h.hp; maxHp=h.hp; stats=h; heroEmoji=h.emoji;
+  playerEl.textContent=heroEmoji;
+  document.getElementById('heroIcon').textContent=heroEmoji;
+  document.getElementById('hp').textContent=hp;
+  document.getElementById('selectScreen').style.display='none';
+  started=true;
+  spawnEnemies();
+  loop();
+}
 
+function spawnEnemies(){
+  enemies.forEach(e=>e.el.remove()); enemies=[];
+  let count=3+lvl*2;
+  for(let i=0;i<count;i++){
+    let el=document.createElement('div'); el.className='enemy';
+    let isBoss=(lvl===5);
+    el.textContent = isBoss ? BOSS_EMOJI : ENEMY_EMOJIS[Math.floor(Math.random()*ENEMY_EMOJIS.length)];
+    game.appendChild(el);
+    let enemyHp = isBoss ? 40 : 4+lvl*2;
+    if(isBoss) el.classList.add('boss');
+    enemies.push({el, x:Math.random()*(window.innerWidth-60)+30, y:Math.random()*(window.innerHeight-150)+60, hp:enemyHp, speed:0.7+lvl*0.15+Math.random()*0.5, isBoss});
+  }
+  document.getElementById('lvl').textContent=lvl;
+}
+
+// Joystick
+const joyBase=document.getElementById('joystickBase');
+const joy=document.getElementById('joystick');
+joyBase.addEventListener('touchstart',e=>{joyActive=true;joyStartX=e.touches[0].clientX;joyStartY=e.touches[0].clientY;});
+document.addEventListener('touchmove',e=>{
+  if(!joyActive) return; e.preventDefault();
+  let dx=e.touches[0].clientX-joyStartX, dy=e.touches[0].clientY-joyStartY;
+  let dist=Math.sqrt(dx*dx+dy*dy); let max=45;
+  if(dist>max){dx=dx/dist*max;dy=dy/dist*max;}
+  jx=dx/max; jy=dy/max; joy.style.transform=`translate(${dx}px,${dy}px)`;
+},{passive:false});
+document.addEventListener('touchend',()=>{joyActive=false;jx=0;jy=0;joy.style.transform='translate(0,0)';});
+let keys={};
+document.addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
+document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+
+function showDmg(x,y,txt,color){
+  let d=document.createElement('div'); d.id='dmg'; d.textContent=txt; d.style.left=x+'px'; d.style.top=y+'px'; d.style.color=color;
+  game.appendChild(d); setTimeout(()=>d.remove(),600);
+}
+function shootNearest(){
+  if(enemies.length===0) return;
+  let nearest=null, bestDist=9999;
+  enemies.forEach(en=>{ let d=Math.hypot(en.x-px,en.y-py); if(d<bestDist){bestDist=d;nearest=en;} });
+  if(!nearest || bestDist>stats.range) return;
+  let el=document.createElement('div'); el.className='bullet'; el.style.background=stats.bullet; el.style.boxShadow=`0 0 12px ${stats.bullet}`;
+  game.appendChild(el);
+  let angle=Math.atan2(nearest.y-py,nearest.x-px);
+  bullets.push({el,x:px+21,y:py+21,vx:Math.cos(angle)*7.5,vy:Math.sin(angle)*7.5,life:90});
+}
 function loop(){
-  if(moving){
-    px+=joyX*4; py+=joyY*4;
-    px=Math.max(15,Math.min(335,px));
-    py=Math.max(15,Math.min(405,py));
+  if(gameOver||!started) return;
+  let mx=jx, my=jy;
+  if(keys['w']||keys['arrowup']) my=-1;
+  if(keys['s']||keys['arrowdown']) my=1;
+  if(keys['a']||keys['arrowleft']) mx=-1;
+  if(keys['d']||keys['arrowright']) mx=1;
+  px+=mx*stats.speed; py+=my*stats.speed;
+  px=Math.max(0,Math.min(window.innerWidth-42,px));
+  py=Math.max(0,Math.min(window.innerHeight-42,py));
+  playerEl.style.left=px+'px'; playerEl.style.top=py+'px';
+  let now=Date.now();
+  if(now-lastShot>stats.fireRate){ shootNearest(); lastShot=now; }
+  for(let i=bullets.length-1;i>=0;i--){
+    let b=bullets[i]; b.x+=b.vx; b.y+=b.vy; b.life--;
+    b.el.style.left=b.x+'px'; b.el.style.top=b.y+'px';
+    let hit=false;
+    for(let j=enemies.length-1;j>=0;j--){
+      let en=enemies[j]; let d=Math.hypot(en.x+18-b.x,en.y+18-b.y);
+      let hitDist=en.isBoss?45:30;
+      if(d<hitDist){
+        en.hp-=stats.damage; en.el.classList.add('hit'); setTimeout(()=>en.el.classList.remove('hit'),80);
+        showDmg(en.x,en.y-10,'-'+stats.damage,'#ffe600'); hit=true;
+        if(en.hp<=0){
+          en.el.remove(); enemies.splice(j,1); kills++; document.getElementById('kills').textContent=kills;
+          showDmg(en.x,en.y,'+1 💀','#00ff88');
+          if(enemies.length===0){
+            if(lvl===5){ document.getElementById('msgTitle').textContent='HAI BATTUTO IL BOSS! 🏆'; document.getElementById('msgText').textContent=`Con ${heroEmoji} sei una leggenda!`; document.getElementById('msg').style.display='block'; gameOver=true; return; }
+            lvl++; spawnEnemies();
+          }
+        }
+        break;
+      }
+    }
+    if(hit||b.life<=0||b.x<0||b.x>window.innerWidth||b.y<0||b.y>window.innerHeight){ b.el.remove(); bullets.splice(i,1); }
   }
-  // attacco automatico
-  let bersagli=[...mostri];
-  if(boss) bersagli.push(boss);
-  bersagli.forEach(m=>{
-    let dx=m.x-px, dy=m.y-py, dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist<60){ m.vita-=0.6; }
-    if(dist>1){ m.x-=dx/dist*m.vel; m.y-=dy/dist*m.vel; }
-    if(dist<30){ pvita-=0.3; }
+  enemies.forEach(en=>{
+    let dx=px-en.x, dy=py-en.y, d=Math.hypot(dx,dy)||1;
+    en.x+=dx/d*en.speed; en.y+=dy/d*en.speed;
+    en.el.style.left=en.x+'px'; en.el.style.top=en.y+'px';
+    if(d<38){
+      hp-= en.isBoss?2:1; document.getElementById('hp').textContent=hp;
+      if(hp<=0){ gameOver=true; document.getElementById('msgTitle').textContent='SEI MORTO 💀'; document.getElementById('msgText').textContent=`Livello ${lvl} - Uccisi: ${kills} con ${heroEmoji}`; document.getElementById('msg').style.display='block'; }
+    }
   });
-  // rimuovi morti
-  mostri=mostri.filter(m=>m.vita>0);
-  let morti = 3 - mostri.length;
-  if(boss && boss.vita<=0){ boss=null; uccisi+=1; uccisiLivello+=1; }
-  // conta uccisi veri
-  let totali = uccisi + (3 - mostri.length - (livello%5===0?0:0));
-  
-  ctx.clearRect(0,0,350,420);
-  // tu
-  ctx.fillStyle="cyan"; ctx.fillRect(px-15,py-15,30,30);
-  // mostri
-  ctx.fillStyle="red";
-  mostri.forEach(m=>{ ctx.fillRect(m.x-m.dim/2,m.y-m.dim/2,m.dim,m.dim); });
-  // boss
-  if(boss){
-    ctx.fillStyle="purple"; ctx.fillRect(boss.x-25,boss.y-25,50,50);
-    ctx.fillStyle="white"; ctx.fillText("BOSS",boss.x-18,boss.y-30);
-    ctx.fillStyle="red"; ctx.fillRect(50,10,boss.vita,10);
-  }
-  // prossimo livello
-  if(mostri.length===0 && !boss){
-    livello++;
-    document.getElementById("liv").textContent=livello;
-    uccisiLivello=0;
-    for(let i=0;i<3;i++) creaMostro();
-  }
-  document.getElementById("vita").textContent=Math.max(0,Math.floor(pvita));
-  document.getElementById("kill").textContent=uccisi + (livello-1)*3 + (3-mostri.length);
-  
-  if(pvita<=0){
-    ctx.fillStyle="white"; ctx.font="30px sans-serif";
-    ctx.fillText("GAME OVER",80,200);
-    return;
-  }
   requestAnimationFrame(loop);
 }
-loop();
 </script>
 </body>
 </html>
