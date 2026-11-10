@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+body{margin:0;background:#111;color:white;text-align:center;font-family:sans-serif;overflow:hidden}
+#game{background:#1a1a2e;border:2px solid white;touch-action:none}
+#joy{width:110px;height:110px;background:#333;border-radius:50%;margin:10px auto;touch-action:none}
+#info{font-size:18px}
+</style>
+</head>
+<body>
+<h2>⚔️ DUNGEON GAME</h2>
+<div id="info">Livello: <span id="liv">1</span> | Vita: <span id="vita">100</span> | Uccisi: <span id="kill">0</span></div>
+<canvas id="game" width="350" height="420"></canvas>
+<p>Muovi il dito sul cerchio</p>
+<div id="joy"></div>
+<button onclick="location.reload()" style="padding:10px 20px;font-size:16px">🔄 Rigioca</button>
+
+<script>
+let canvas=document.getElementById("game");
+let ctx=canvas.getContext("2d");
+let px=175, py=210, pvita=100;
+let joyX=0, joyY=0, moving=false;
+let livello=1, uccisi=0, uccisiLivello=0;
+let mostri=[];
+let boss=null;
+
+function creaMostro(){
+  let eBoss = (livello % 5 === 0 && mostri.length===0 && !boss);
+  if(eBoss){
+    boss={x:Math.random()*300+25,y:50,vita:100,max:100,vel:0.7,dim:50};
+  } else {
+    mostri.push({x:Math.random()*300+25,y:Math.random()*100+20,vita:30,vel:0.8+livello*0.1,dim:24});
+  }
+}
+for(let i=0;i<3;i++) creaMostro();
+
+let joy=document.getElementById("joy");
+joy.addEventListener("touchstart",e=>{moving=true});
+joy.addEventListener("touchmove",e=>{
+  let t=e.touches[0];
+  let r=joy.getBoundingClientRect();
+  let dx=t.clientX-(r.left+r.width/2);
+  let dy=t.clientY-(r.top+r.height/2);
+  joyX=dx/40; joyY=dy/40;
+});
+joy.addEventListener("touchend",()=>{moving=false;joyX=0;joyY=0});
+
+function loop(){
+  if(moving){
+    px+=joyX*4; py+=joyY*4;
+    px=Math.max(15,Math.min(335,px));
+    py=Math.max(15,Math.min(405,py));
+  }
+  // attacco automatico
+  let bersagli=[...mostri];
+  if(boss) bersagli.push(boss);
+  bersagli.forEach(m=>{
+    let dx=m.x-px, dy=m.y-py, dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<60){ m.vita-=0.6; }
+    if(dist>1){ m.x-=dx/dist*m.vel; m.y-=dy/dist*m.vel; }
+    if(dist<30){ pvita-=0.3; }
+  });
+  // rimuovi morti
+  mostri=mostri.filter(m=>m.vita>0);
+  let morti = 3 - mostri.length;
+  if(boss && boss.vita<=0){ boss=null; uccisi+=1; uccisiLivello+=1; }
+  // conta uccisi veri
+  let totali = uccisi + (3 - mostri.length - (livello%5===0?0:0));
+  
+  ctx.clearRect(0,0,350,420);
+  // tu
+  ctx.fillStyle="cyan"; ctx.fillRect(px-15,py-15,30,30);
+  // mostri
+  ctx.fillStyle="red";
+  mostri.forEach(m=>{ ctx.fillRect(m.x-m.dim/2,m.y-m.dim/2,m.dim,m.dim); });
+  // boss
+  if(boss){
+    ctx.fillStyle="purple"; ctx.fillRect(boss.x-25,boss.y-25,50,50);
+    ctx.fillStyle="white"; ctx.fillText("BOSS",boss.x-18,boss.y-30);
+    ctx.fillStyle="red"; ctx.fillRect(50,10,boss.vita,10);
+  }
+  // prossimo livello
+  if(mostri.length===0 && !boss){
+    livello++;
+    document.getElementById("liv").textContent=livello;
+    uccisiLivello=0;
+    for(let i=0;i<3;i++) creaMostro();
+  }
+  document.getElementById("vita").textContent=Math.max(0,Math.floor(pvita));
+  document.getElementById("kill").textContent=uccisi + (livello-1)*3 + (3-mostri.length);
+  
+  if(pvita<=0){
+    ctx.fillStyle="white"; ctx.font="30px sans-serif";
+    ctx.fillText("GAME OVER",80,200);
+    return;
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
