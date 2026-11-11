@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dungeon 5.0 - Pausa Shop + Infinito fino al 50!</title>
+<title>Dungeon 5.1 - Fix Pulsanti!</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{background:#0a0a12;color:white;font-family:Arial,sans-serif;overflow:hidden;touch-action:none;user-select:none}
@@ -36,13 +36,13 @@
   #lootCard button{margin-top:10px;padding:11px 22px;border:none;border-radius:12px;font-weight:bold;font-size:15px;color:white}
   #toast{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);padding:10px 16px;border-radius:12px;z-index:35;display:none;font-size:13px;text-align:center;border:2px solid #ffcc00}
   #dmg{position:absolute;font-weight:bold;font-size:16px;pointer-events:none;z-index:15}
-  /* PAUSA TRA LIVELLI - SHOP GRANDE */
   #pauseShop{position:absolute;inset:0;background:rgba(5,15,5,0.97);z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto;text-align:center}
   .shopGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:400px;margin:12px 0}
   .shopItem{background:#222b3a;border:2px solid #444;padding:14px;border-radius:14px}
   .shopItem b{font-size:15px}
   .shopItem span{font-size:11px;color:#ccc;display:block;margin:4px 0;line-height:1.4}
   .shopItem button{width:100%;padding:10px;border:none;border-radius:10px;font-weight:bold;color:white;font-size:13px;margin-top:6px}
+  .bigBtn{padding:16px 24px;font-size:19px;border:none;border-radius:14px;font-weight:bold;margin:8px;cursor:pointer;width:260px;max-width:90%}
   @keyframes pop{0%{transform:scale(0.5)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
   .pop{animation:pop 0.4s}
 </style>
@@ -55,34 +55,32 @@
   <div id="toast"></div>
 
   <div id="deviceScreen" class="screen">
-    <h1>🎮 DUNGEON 5.0</h1><p>Su che dispositivo giochi?</p>
-    <button style="padding:14px 22px;font-size:18px;border:none;border-radius:14px;font-weight:bold;margin:6px;background:#35a7ff;color:white" onclick="chooseDevice('mobile')">📱 TELEFONO</button>
-    <button style="padding:14px 22px;font-size:18px;border:none;border-radius:14px;font-weight:bold;margin:6px;background:#00cc66;color:white" onclick="chooseDevice('pc')">💻 PC</button>
-    <p style="margin-top:10px">Obiettivo: arriva al Livello 50 e batti il BOSS IMPOSSIBILE 👑💀<br>Ti serviranno 2 Leggendari o il Drago...</p>
+    <h1>🎮 DUNGEON 5.1</h1><p>Su che dispositivo giochi?</p>
+    <button id="btnMobile" class="bigBtn" style="background:#35a7ff;color:white" type="button">📱 TELEFONO</button>
+    <button id="btnPC" class="bigBtn" style="background:#00cc66;color:white" type="button">💻 PC</button>
+    <p style="margin-top:10px;font-size:12px;color:#aaa">Obiettivo: arriva al Livello 50 e batti il BOSS IMPOSSIBILE 👑💀</p>
   </div>
   <div id="selectScreen" class="screen" style="display:none">
     <h1>🌳 SCEGLI IL TUO EROE</h1>
     <div class="chars">
-      <div class="char" onclick="startGame('knight')"><span class="emoji">🛡️</span><h3>CAVALIERE</h3><span>❤️ <b>180</b><br>⚔️ Danno <b>1</b></span></div>
-      <div class="char" onclick="startGame('mage')"><span class="emoji">🧙</span><h3>MAGO</h3><span>❤️ <b>70</b><br>⚔️ Danno <b>5</b></span></div>
-      <div class="char" onclick="startGame('ninja')"><span class="emoji">🥷</span><h3>NINJA</h3><span>❤️ <b>100</b><br>⚔️ Danno <b>2</b></span></div>
-      <div class="char" onclick="startGame('archer')"><span class="emoji">🏹</span><h3>ARCIERE</h3><span>❤️ <b>80</b><br>⚔️ Danno <b>3</b></span></div>
+      <div class="char" data-hero="knight"><span class="emoji">🛡️</span><h3>CAVALIERE</h3><span>❤️ <b>180</b><br>⚔️ Danno <b>1</b></span></div>
+      <div class="char" data-hero="mage"><span class="emoji">🧙</span><h3>MAGO</h3><span>❤️ <b>70</b><br>⚔️ Danno <b>5</b></span></div>
+      <div class="char" data-hero="ninja"><span class="emoji">🥷</span><h3>NINJA</h3><span>❤️ <b>100</b><br>⚔️ Danno <b>2</b></span></div>
+      <div class="char" data-hero="archer"><span class="emoji">🏹</span><h3>ARCIERE</h3><span>❤️ <b>80</b><br>⚔️ Danno <b>3</b></span></div>
     </div>
   </div>
 
-  <!-- PAUSA TRA LIVELLI -->
   <div id="pauseShop">
     <h2 id="pauseTitle">✅ LIVELLO 1 COMPLETATO!</h2>
-    <p id="pauseStats" style="color:#aaa;font-size:13px;margin:6px 0">Hai 0💰 | Danno: 2 | Leggendari: 0</p>
-    <p style="font-size:13px;color:#ffe600">🛒 NEGOZIO - Prenditi il tuo tempo, il gioco è in pausa!</p>
+    <p id="pauseStats" style="color:#aaa;font-size:13px;margin:6px 0">Hai 0💰</p>
+    <p style="font-size:13px;color:#ffe600">🛒 NEGOZIO - Il gioco è in pausa!</p>
     <div class="shopGrid">
-      <div class="shopItem"><b>⚔️ Potenzia Danno</b><span>Può uscire Comune, Raro, Epico o Leggendario!</span><button style="background:#ff5555" onclick="buy('dmg')">COMPRA - 5💰</button></div>
-      <div class="shopItem"><b>❤️ Cura / Vita</b><span>Recupera vita, può uscire anche Leggendario!</span><button style="background:#00cc66" onclick="buy('hp')">COMPRA - 5💰</button></div>
-      <div class="shopItem"><b>💨 Velocità</b><span>Corri più veloce per schivare il boss</span><button style="background:#35a7ff" onclick="buy('speed')">COMPRA - 5💰</button></div>
-      <div class="shopItem" style="border-color:#ff9d00"><b>📦 CASSA MISTERIOSA</b><span>10💰 - Loot casuale con rarità! 5% Leggendario!</span><button style="background:#ff9d00;color:black" onclick="openCrate()">APRI CASSA - 10💰</button></div>
+      <div class="shopItem"><b>⚔️ Potenzia Danno</b><span>Può uscire Comune, Raro, Epico o Leggendario!</span><button id="buyDmg" style="background:#ff5555" type="button">COMPRA - 5💰</button></div>
+      <div class="shopItem"><b>❤️ Cura / Vita</b><span>Recupera vita, può uscire anche Leggendario!</span><button id="buyHp" style="background:#00cc66" type="button">COMPRA - 5💰</button></div>
+      <div class="shopItem"><b>💨 Velocità</b><span>Corri più veloce per schivare il boss</span><button id="buySpeed" style="background:#35a7ff" type="button">COMPRA - 5💰</button></div>
+      <div class="shopItem" style="border-color:#ff9d00"><b>📦 CASSA MISTERIOSA</b><span>10💰 - Loot casuale! 5% Leggendario!</span><button id="buyCrate" style="background:#ff9d00;color:black" type="button">APRI CASSA - 10💰</button></div>
     </div>
-    <button onclick="continueGame()" style="padding:14px 28px;font-size:18px;background:#00cc66;color:white;border:none;border-radius:14px;font-weight:bold">▶️ CONTINUA AL LIVELLO 2</button>
-    <p style="font-size:11px;color:#888;margin-top:8px">Suggerimento: non andare avanti senza almeno 1 oggetto Epico!</p>
+    <button id="btnContinue" style="padding:14px 28px;font-size:18px;background:#00cc66;color:white;border:none;border-radius:14px;font-weight:bold" type="button">▶️ CONTINUA</button>
   </div>
 
   <div id="lootCard">
@@ -91,9 +89,9 @@
     <h2 id="lootName">Arco Comune</h2>
     <p id="lootDesc">+1 Danno</p>
     <div id="lootStats" style="font-size:12px;color:#ffe600;font-weight:bold"></div>
-    <button id="lootBtn" onclick="closeLoot()">EQUIPAGGIA ✅</button>
+    <button id="lootBtn" type="button">EQUIPAGGIA ✅</button>
   </div>
-  <div id="msg"><h2 id="msgTitle">Hai vinto!</h2><p id="msgText"></p><button onclick="location.reload()">RIGIOCA 🔄</button></div>
+  <div id="msg"><h2 id="msgTitle">Hai vinto!</h2><p id="msgText"></p><button id="btnReplay" type="button">RIGIOCA 🔄</button></div>
 </div>
 
 <script>
@@ -109,6 +107,17 @@ const ENEMY_EMOJIS=['👹','😈','👺','💀','🧟','👽','😡','🤬','�
 const RARITIES=[ {id:'common',name:'COMUNE',color:'#9e9e9e',bg:'#333',chance:60,mult:1,desc:'Un oggetto normale.'}, {id:'rare',name:'RARO',color:'#35a7ff',bg:'#0a2a4a',chance:25,mult:4,desc:'Più forte del comune!'}, {id:'epic',name:'EPICO',color:'#c44dff',bg:'#2a0a3a',chance:10,mult:10,desc:'Molto potente!'}, {id:'legendary',name:'LEGGENDARIO',color:'#ff9d00',bg:'#3a2500',chance:5,mult:30,desc:'RARRISSIMO! Sei OP!'} ];
 function rollRarity(){ let r=Math.random()*100,acc=0; for(let rar of RARITIES){acc+=rar.chance; if(r<acc) return rar;} return RARITIES[0]; }
 const BASE_LOOT={ knight:{emoji:'🛡️',name:'Scudo',baseDmg:1,baseHp:10,desc:'Scudo del Cavaliere'}, mage:{emoji:'🔮',name:'Bacchetta',baseDmg:1,baseHp:5,desc:'Bacchetta del Mago'}, ninja:{emoji:'🗡️',name:'Katana',baseDmg:1,baseHp:5,desc:'Katana del Ninja'}, archer:{emoji:'🏹',name:'Arco',baseDmg:1,baseHp:5,desc:'Arco dell\'Arciere'} };
+
+// ===== FIX PULSANTI - con addEventListener, non onclick =====
+function chooseDevice(d){
+  isMobile=(d==='mobile');
+  document.getElementById('deviceScreen').style.display='none';
+  document.getElementById('selectScreen').style.display='flex';
+  if(isMobile) document.getElementById('joystickBase').style.display='flex';
+  createDecor();
+}
+function createDecor(){ const decors=['🌳','🌲','🌿','🌵','🪨','🌸','🍄','🌻']; let count=isMobile?10:22; for(let i=0;i<count;i++){ let d=document.createElement('div'); d.className='decor'; d.textContent=decors[Math.floor(Math.random()*decors.length)]; d.style.left=Math.random()*(window.innerWidth-40)+'px'; d.style.top=Math.random()*(window.innerHeight-120)+50+'px'; d.style.fontSize=(isMobile?22:30)+'px'; game.appendChild(d); } }
+function startGame(type){ heroType=type; let h=HEROES[type]; hp=h.hp; stats={damage:h.damage,speed:h.speed,range:h.range,fireRate:h.fireRate,bullet:h.bullet}; heroEmoji=h.emoji; playerEl.textContent=heroEmoji; document.getElementById('heroIcon').textContent=heroEmoji; document.get mage:{emoji:'🔮',name:'Bacchetta',baseDmg:1,baseHp:5,desc:'Bacchetta del Mago'}, ninja:{emoji:'🗡️',name:'Katana',baseDmg:1,baseHp:5,desc:'Katana del Ninja'}, archer:{emoji:'🏹',name:'Arco',baseDmg:1,baseHp:5,desc:'Arco dell\'Arciere'} };
 function chooseDevice(d){ isMobile=(d==='mobile'); document.getElementById('deviceScreen').style.display='none'; document.getElementById('selectScreen').style.display='flex'; if(isMobile) document.getElementById('joystickBase').style.display='flex'; createDecor(); }
 function createDecor(){ const decors=['🌳','🌲','🌿','🌵','🪨','🌸','🍄','🌻']; let count=isMobile?10:22; for(let i=0;i<count;i++){ let d=document.createElement('div'); d.className='decor'; d.textContent=decors[Math.floor(Math.random()*decors.length)]; d.style.left=Math.random()*(window.innerWidth-40)+'px'; d.style.top=Math.random()*(window.innerHeight-120)+50+'px'; d.style.fontSize=(isMobile?22:30)+'px'; game.appendChild(d); } }
 function startGame(type){ heroType=type; let h=HEROES[type]; hp=h.hp; stats={damage:h.damage,speed:h.speed,range:h.range,fireRate:h.fireRate,bullet:h.bullet}; heroEmoji=h.emoji; playerEl.textContent=heroEmoji; document.getElementById('heroIcon').textContent=heroEmoji; document.getElementById('hp').textContent=hp; document.getElementById('selectScreen').style.display='none'; started=true; spawnEnemies(); loop(); }
